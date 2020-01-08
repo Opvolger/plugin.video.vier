@@ -46,7 +46,7 @@ def list_programmas():
     for programma in programmas:
         list_item = xbmcgui.ListItem(label=programma['label'])
         list_item.setInfo('video', programma['video'])
-        url = get_url(action='episodes', programma_link=programma['programma_link'], programma_naam=programma['label'])
+        url = get_url(action='get_episodes', programma_link=programma['programma_link'], programma_naam=programma['label'])
         is_folder = True
         xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
     xbmcplugin.addSortMethod(_handle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
@@ -60,10 +60,10 @@ def list_episodes(programma_link, programma_naam):
         list_item = xbmcgui.ListItem(label=episode['label'])
         list_item.setArt(episode['art'])
         list_item.setInfo('video', episode['video'])
+        list_item.setProperty('IsPlayable', 'true')
         url = get_url(action='video', video_link=episode['video_link'])
         is_folder = False
         xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
-    xbmcplugin.addSortMethod(_handle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
     xbmcplugin.endOfDirectory(_handle)
 
 def play_video(video_link):
@@ -74,7 +74,7 @@ def play_video(video_link):
 def router(paramstring):
     params = dict(parse_qsl(paramstring))
     if params:
-        if params['action'] == 'episodes':
+        if params['action'] == 'get_episodes':
             list_episodes(params['programma_link'], params['programma_naam'])
             setMediaView()
         elif params['action'] == 'video':

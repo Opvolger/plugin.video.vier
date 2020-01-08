@@ -1,4 +1,6 @@
-import html
+import HTMLParser
+html = HTMLParser.HTMLParser()
+
 import sys
 import re
 
@@ -25,7 +27,7 @@ class Vier:
     def getProgrammas(self):
         url = 'https://www.vier.be/programmas'
         html_page = self.get_webpage(url)
-        regex = r"<a class=\"program-overview__link\" href=\"([A-z\/]*)\">([#A-z\s]*)<\/a>"
+        regex = r'<a class="program-overview__link" href="([A-z\-\/]*)">([#A-z\s]*)<\/a>'
 
         matches = re.finditer(regex, html_page, re.MULTILINE)
 
@@ -33,9 +35,9 @@ class Vier:
         for matchNum, match in enumerate(matches, start=1):
             # vreemd dat unescape moet...
             naam = html.unescape(match.group(2))
-            episode_link = html.unescape(match.group(1))
+            programma_link = html.unescape(match.group(1))
             programma = {'label': naam,
-                         'video_link': episode_link,
+                         'programma_link': programma_link,
                          'video': {
                              'title': naam,
                              'mediatype': 'video'
@@ -44,36 +46,77 @@ class Vier:
             programmaslist.append(programma)
         return programmaslist
 
+    @staticmethod
+    def getRegexLink():
+        # '+Vier.getRegexLink()+r'
+        return r'([\w\s\d=;:&\.\-\?\/]*)'
+
+    @staticmethod
+    def getRegexLinkVideo():
+        return '(\/video[\w\s\d=;:&\.\-\?\/]*)'
+
+    @staticmethod
+    def getRegexUitgelicht():
+        return r'image="'+Vier.getRegexLink()+r'" href="'+Vier.getRegexLinkVideo()+r'"(["\s\w\s\d\=><\-\/]*)<h3 class="image-teaser__title">([\w\s\d].*)<\/h3>'
+
+    @staticmethod
+    def getRegexEpisodes():
+        return r'href="'+Vier.getRegexLinkVideo()+r'"([\sA-z0-9\=\"><\-]*)data-background-image="(https:\/\/[a-z0-9\?\=\&;\.\/\-]*)([A-z0-9\=\-\/:!\?#\"<>\s]*)<span>([A-z0-9!\s]*)'
+
     def getEpisodes(self, programma_link):
         url = 'https://www.vier.be%s' % programma_link
         html_page = self.get_webpage(url)
-        regex = r"(https:[A-z=;&\.\-\?\/0-9]*)\" href=\"(\/video[A-z\-\/0-9]*)"
+
+        # uitgelicht
+        regex = Vier.getRegexUitgelicht()
         matches = re.finditer(regex, html_page, re.MULTILINE)
         episodeslist = list()
         for matchNum, match in enumerate(matches, start=1):
             # vreemd dat unescape moet...
             image = html.unescape(match.group(1))
             video_link = html.unescape(match.group(2))
-            episode = {'label': video_link,
+            label = html.unescape(match.group(4))
+            episode = {'label': label,
                        'video_link': video_link,
                        'art': {'thumb': image,
                                'icon':  image,
                                'fanart': image
                                },
                        'video': {
-                           'title': video_link,
+                           'title': label,
                            'mediatype': 'video'
                        }
                        }
             episodeslist.append(episode)
+
+        # de rest
+        regex = Vier.getRegexEpisodes()
+        matches = re.finditer(regex, html_page, re.MULTILINE)
+        for matchNum, match in enumerate(matches, start=1):
+            # vreemd dat unescape moet...
+            video_link = html.unescape(match.group(1))
+            image = html.unescape(match.group(3))
+            label = html.unescape(match.group(5))
+            episode = {'label': label,
+                       'video_link': video_link,
+                       'art': {'thumb': image,
+                               'icon':  image,
+                               'fanart': image
+                               },
+                       'video': {
+                           'title': label,
+                           'mediatype': 'video'
+                       }
+                       }
+            episodeslist.append(episode)
+
         return episodeslist
 
     def getPlayUrl(self, video_link):
         url = 'https://www.vier.be%s' % video_link
         html_page = self.get_webpage(url)
-        regex = r"(https:)([A-z\.0-9\_\/\-]*)(m3u8)"
+        regex = r"(https:[\w\s\d\=\;\:\&\.\-\?\/]*m3u8)"
         matches = re.finditer(regex, html_page, re.MULTILINE)
-
         for matchNum, match in enumerate(matches, start=1):
             # vreemd dat unescape moet...
-            return print(html.unescape(match.group(0)))
+            return html.unescape(match.group(1))
