@@ -27,7 +27,7 @@ class Vier:
     def getProgrammas(self):
         url = 'https://www.vier.be/programmas'
         html_page = self.get_webpage(url)
-        regex = r'<a class="program-overview__link" href="([A-z\-\/]*)">([#A-z\s]*)<\/a>'
+        regex = r'<a class="program-overview__link" href="([A-z\-\/]*)">([\w\s\d\=\;\:\#\&\.\-\?\/]*)<\/a>'
 
         matches = re.finditer(regex, html_page, re.MULTILINE)
 
