@@ -17,12 +17,15 @@ else:
 PLUGIN_NAME = 'vier'
 PLUGIN_ID = 'plugin.video.vier'
 
-vier = Vier()
-
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
 
 _addon = xbmcaddon.Addon()
+
+login_username = xbmcplugin.getSetting(_handle, "username")
+login_password = xbmcplugin.getSetting(_handle, "password")
+vier = Vier(login_username, login_password)
+
 
 # het in elkaar klussen van een url welke weer gebruikt word bij router
 def get_url(**kwargs):
@@ -61,13 +64,13 @@ def list_episodes(programma_link, programma_naam):
         list_item.setArt(episode['art'])
         list_item.setInfo('video', episode['video'])
         list_item.setProperty('IsPlayable', 'true')
-        url = get_url(action='video', video_link=episode['video_link'])
+        url = get_url(action='video', video_link=episode['video_link'], videoUuid=episode['videoUuid'])
         is_folder = False
         xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
     xbmcplugin.endOfDirectory(_handle)
 
-def play_video(video_link):
-    url = vier.getPlayUrl(video_link)
+def play_video(video_link, videoUuid):
+    url = vier.getPlayUrl(video_link, videoUuid)
     playitem = xbmcgui.ListItem(path=url)
     xbmcplugin.setResolvedUrl(_handle, True, listitem=playitem)
 
@@ -78,7 +81,7 @@ def router(paramstring):
             list_episodes(params['programma_link'], params['programma_naam'])
             setMediaView()
         elif params['action'] == 'video':
-            play_video(params['video_link'])
+            play_video(params['video_link'], params['videoUuid'])
         else:
             raise ValueError('Invalid paramstring: {0}!'.format(paramstring))
     else:

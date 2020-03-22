@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
     <category label="32001">
-        <setting id="subtitle" type="bool" label="32002" default="true"/>
+        <setting id="username" type="text" label="32011" default=""/>
+        <setting id="password" type="text" label="32012" option="hidden"  enable="!eq(-1,)" default=""/>
     </category>
 </settings>

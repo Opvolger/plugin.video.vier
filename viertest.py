@@ -1,12 +1,15 @@
 
 from resources.lib.vier import Vier
 
-vier = Vier()
+username = "opvolger@gmail.com"
+password = "***************"
 
-print(Vier.getRegexEpisodes())
+vier = Vier(username, password)
+
+# print(Vier.getRegexEpisodes())
 
 print(vier.getProgrammas())
 
 print(vier.getEpisodes("/expeditie-robinson"))
 
-print(vier.getPlayUrl("/video/expeditie-robinson/kandidaat-niels-ik-kijk-er-naar-uit-om-die-nederlanders-kapot-te-maken"))
+print(vier.getPlayUrl("https://www.vier.be/video/expeditie-robinson/expeditie-robinson-s7/expeditie-robinson-s7-aflevering-9", "4453a72f-6f91-4734-9b9e-51e45ef26936"))
